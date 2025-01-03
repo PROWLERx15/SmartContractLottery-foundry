@@ -32,6 +32,7 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
 contract Raffle is VRFConsumerBaseV2Plus {
     /* errors */
     error Raffle__NotEnoughETHSent();
+    error Raffle__RaffleNotOpen();
     error Raffle__TransferFailed();
     error Raffle__upkeepNotNeeded(
         uint256 balance,
@@ -91,6 +92,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
             revert Raffle__NotEnoughETHSent();
         }
         s_Players.push(payable(msg.sender));
+        if (s_raffleState != RaffleState.OPEN) {
+            revert Raffle__RaffleNotOpen();
+        }
         /* Why use Events?
             1. Makes Migration easier
             2. Makes Front-end "indexing" easier
@@ -204,5 +208,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getRaffleState() external view returns (RaffleState) {
         return s_raffleState;
+    }
+
+    function getPlayer(uint256 indexOfPlayer) external view returns (address) {
+        return s_Players[indexOfPlayer];
     }
 }
