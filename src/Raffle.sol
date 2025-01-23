@@ -28,17 +28,12 @@ import {VRFV2PlusClient} from "@chainlink/contracts/src/v0.8/vrf/dev/libraries/V
  * @notice This contract is for creating a sample Raffle
  * @dev Implements Chainlink VRFv2.5
  */
-
 contract Raffle is VRFConsumerBaseV2Plus {
     /* errors */
     error Raffle__NotEnoughETHSent();
     error Raffle__RaffleNotOpen();
     error Raffle__TransferFailed();
-    error Raffle__upkeepNotNeeded(
-        uint256 balance,
-        uint256 playersLength,
-        uint256 raffleState
-    );
+    error Raffle__upkeepNotNeeded(uint256 balance, uint256 playersLength, uint256 raffleState);
 
     /* Type declarations */
     enum RaffleState {
@@ -115,9 +110,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
      * @return upkeepNeeded - TRUE if it's time to restart the lottery
      * @return - ignored
      */
-    function checkUpkeep(
-        bytes memory /* checkData */
-    )
+    function checkUpkeep(bytes memory /* checkData */ )
         public
         view
         returns (
@@ -127,8 +120,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         )
     // A way to initialize variables in the return statement -> bool upkeepNeeded is initialized = false
     {
-        bool timeHasPassed = ((block.timestamp - s_LastTimeStamp) >=
-            i_Interval);
+        bool timeHasPassed = ((block.timestamp - s_LastTimeStamp) >= i_Interval);
         bool isOpen = (s_raffleState == RaffleState.OPEN);
         bool hasBalance = address(this).balance > 0;
         bool hasPlayers = s_Players.length > 0;
@@ -139,21 +131,15 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     // 3. Be automatically called
-    function performUpkeep(
-        bytes calldata /* performData */ /*override*/
-    ) external {
+    function performUpkeep(bytes calldata /* performData */ /*override*/ ) external {
         // Check to see if enough time has passed
         // if ((block.timestamp - s_LastTimeStamp) < i_Interval) {
         //     revert Raffle__NotEnoughTimePassed();
         // }
 
-        (bool upkeepNeeded, ) = checkUpkeep("");
+        (bool upkeepNeeded,) = checkUpkeep("");
         if (!upkeepNeeded) {
-            revert Raffle__upkeepNotNeeded(
-                address(this).balance,
-                s_Players.length,
-                uint256(s_raffleState)
-            );
+            revert Raffle__upkeepNotNeeded(address(this).balance, s_Players.length, uint256(s_raffleState));
         }
 
         s_raffleState = RaffleState.CALCULATING;
@@ -171,15 +157,12 @@ contract Raffle is VRFConsumerBaseV2Plus {
                 )
             })
         );
-        // Quiz... is this redundant?
+        // Quiz... is this redundant? -> VRF Coordinator also emits an event
         emit RequestedRaffleWinner(requestId);
     }
 
     // CEI: Checks, Effects, Interactions Pattern
-    function fulfillRandomWords(
-        uint256,
-        uint256[] calldata randomWords
-    ) internal virtual override {
+    function fulfillRandomWords(uint256, uint256[] calldata randomWords) internal virtual override {
         // Checks
 
         // Effect (Internal Contract State Changes)
@@ -194,7 +177,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
         emit WinnerPicked(s_recentWinner);
 
         // Interactions (External Contract Interactions)
-        (bool success, ) = recentWinner.call{value: address(this).balance}("");
+        (bool success,) = recentWinner.call{value: address(this).balance}("");
         if (!success) {
             revert Raffle__TransferFailed();
         }
