@@ -11,19 +11,23 @@ contract DeployRaffle is Script {
         HelperConfig helperConfig = new HelperConfig();
         // local -> deploy mocks, get local configs
         // sepolia -> get Sepolia config
+        AddConsumer addConsumer = new AddConsumer();
         HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
 
         if (config.subscriptionId == 0) {
             // Create Subscription
             CreateSubscription createSub = new CreateSubscription();
-            (config.subscriptionId, config.vrfCoordinator) = createSub.createSubscription(config.vrfCoordinator);
+            (config.subscriptionId, config.vrfCoordinator) =
+                createSub.createSubscription(config.vrfCoordinator, config.account);
 
             // FundSubscription
             FundSubscription fundSub = new FundSubscription();
-            fundSub.fundSubscription(config.vrfCoordinator, config.subscriptionId, config.link);
+            fundSub.fundSubscription(config.vrfCoordinator, config.subscriptionId, config.link, config.account);
+
+            helperConfig.setConfig(block.chainid, config);
         }
 
-        vm.startBroadcast();
+        vm.startBroadcast(config.account);
         Raffle raffle = new Raffle(
             config.entranceFee,
             config.interval,
@@ -34,8 +38,7 @@ contract DeployRaffle is Script {
         );
         vm.stopBroadcast();
 
-        AddConsumer addConsumer = new AddConsumer();
-        addConsumer.addConsumer(address(raffle), config.vrfCoordinator, config.subscriptionId);
+        addConsumer.addConsumer(address(raffle), config.vrfCoordinator, config.subscriptionId, config.account);
         return (raffle, helperConfig);
     }
 
