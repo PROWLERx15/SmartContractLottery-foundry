@@ -57,7 +57,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /* Events */
     event RaffleEntered(address indexed player);
     event WinnerPicked(address indexed winner);
-    event RequestedRaffleWinner(uint256 requestId);
+    event RequestedRaffleWinner(uint256 indexed requestId);
 
     /* Modifiers */
     /* Functions */
@@ -195,5 +195,13 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getPlayer(uint256 indexOfPlayer) external view returns (address) {
         return s_Players[indexOfPlayer];
+    }
+
+    function getLastTimeStamp() external view returns (uint256) {
+        return s_LastTimeStamp;
+    }
+
+    function getRecentWinner() external view returns (address) {
+        return s_recentWinner;
     }
 }
