@@ -1,18 +1,3 @@
-/* Layout of the contract file: */
-
-/* Inside Contract: */
-
-/* Layout of Functions: */
-/* constructor */
-/* receive function (if exists) */
-/* fallback function (if exists) */
-/* external */
-/* public */
-/* internal */
-/* private */
-/* internal & private view & pure functions */
-/* external & public view & pure functions */
-
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
@@ -61,6 +46,8 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     /* Modifiers */
     /* Functions */
+
+    /* constructor */
     constructor(
         uint256 EntranceFee,
         uint256 Interval,
@@ -184,7 +171,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     /* Getter Functions */
-
+    /* external & public view & pure functions */
     function getEntranceFee() external view returns (uint256) {
         return i_EntranceFee;
     }
@@ -203,5 +190,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
 
     function getRecentWinner() external view returns (address) {
         return s_recentWinner;
+    }
+
+    function getBalanceOfRaffle() external view returns (uint256) {
+        return address(this).balance;
     }
 }

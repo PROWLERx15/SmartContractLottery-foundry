@@ -29,11 +29,13 @@ contract CreateSubscription is Script {
         return (subId, vrfCoordinator);
     }
 
-    function run() public {}
+    function run() public returns (uint256, address) {
+        return createSubscriptionUsingConfig();
+    }
 }
 
 contract FundSubscription is Script, CodeConstants {
-    uint256 public constant FUND_AMOUNT = 3 ether; // 3 LINK
+    uint256 public constant FUND_AMOUNT = 10 ether; // 10 LINK
 
     function fundSubscriptionUsingConfig() public {
         HelperConfig helperConfig = new HelperConfig();
@@ -53,7 +55,7 @@ contract FundSubscription is Script, CodeConstants {
 
         if (block.chainid == LOCAL_CHAIN_ID) {
             vm.startBroadcast(account);
-            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, FUND_AMOUNT);
+            VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, (FUND_AMOUNT * 100));
             vm.stopBroadcast();
         } else {
             vm.startBroadcast();
